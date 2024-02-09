@@ -1,0 +1,4 @@
+weaviate-client
+streamlit
+st-files-connection
+unstructured[all-docs]
