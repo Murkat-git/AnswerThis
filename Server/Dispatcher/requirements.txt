@@ -1,0 +1,3 @@
+langchain
+langserve[server]
+weaviate-client
