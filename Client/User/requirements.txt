@@ -1,0 +1,5 @@
+langserve[client]
+langchain
+streamlit
+requests
+fastapi
