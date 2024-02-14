@@ -9,8 +9,8 @@ import streamlit as st
 DB_DOCUMENT = "Document"
 DB_CHUNK = "Chunk"
 
-SOFT_MAX_CHUNK = 300
-MAX_CHUNK = 400
+SOFT_MAX_CHUNK = 200
+MAX_CHUNK = 300
 OVERLAP = 50
 
 
@@ -34,6 +34,7 @@ def process_file(filename, raw, tenant):
     doc_uuid = write_doc_db(filename, tenant)
     chunks = partition(
         filename,
+        chunking_strategy="by_title",
         new_after_n_chars=SOFT_MAX_CHUNK,
         max_characters=MAX_CHUNK,
         overlap=OVERLAP,
@@ -101,6 +102,15 @@ def get_tenants():
     return client.collections.get(DB_DOCUMENT).tenants.get().keys()
 
 
+def get_documents(tenant, limit=100):
+    client = get_db_client()
+    return (
+        client.collections.get(DB_DOCUMENT)
+        .with_tenant(tenant)
+        .query.fetch_objects(limit=limit)
+    )
+
+
 def write_doc_db(filename, tenant):
     client = get_db_client()
     doc_collection = client.collections.get(DB_DOCUMENT).with_tenant(tenant)
@@ -119,16 +129,19 @@ def write_chunks_db(doc_uuid, chunks, tenant):
         )
 
 
-def delete_document_db(filename, tenant):
+def delete_document_db(doc_uuid, tenant):
     client = get_db_client()
-    doc_uuid = generate_uuid5(filename)
 
     client.collections.get(DB_CHUNK).with_tenant(tenant).data.delete_many(
-        where=wvc.query.Filter.by_property("doc_uuid").equal(doc_uuid), verbose=True
+        where=wvc.query.Filter.by_ref(link_on="doc_uuid").by_id().equal(doc_uuid)
     )
     client.collections.get(DB_DOCUMENT).with_tenant(tenant).data.delete_by_id(doc_uuid)
 
 
 def get_all_chunks(tenant, limit=100):
     client = get_db_client()
-    return client.collections.get(DB_CHUNK).with_tenant(tenant).query.fetch_objects(include_vector=True, limit=limit)
+    return (
+        client.collections.get(DB_CHUNK)
+        .with_tenant(tenant)
+        .query.fetch_objects(include_vector=True, limit=limit)
+    )

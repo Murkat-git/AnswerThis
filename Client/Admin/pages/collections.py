@@ -10,7 +10,7 @@ st.title("Select collection")
 
 with st.spinner(text="Getting collections"):
     tenants = sorted(get_tenants())
-tenants
+# tenants
 
 # collections = client.collections.list_all(simple=True)
 # collections = [collection for collection in collections if collection["description"]]

@@ -1,7 +1,7 @@
 import weaviate
 import pandas as pd
 import streamlit as st
-from utility import get_db_client, process_file, get_all_chunks
+from utility import get_db_client, process_file, get_all_chunks, get_documents, delete_document_db
 
 if "selected_collection" not in st.session_state:
     st.switch_page("pages/collections.py")
@@ -10,7 +10,21 @@ st.title(st.session_state["selected_collection"])
 
 client = get_db_client()
 
+def delete_document(uuid):
+    delete_document_db(uuid, st.session_state["selected_collection"])
+
 col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Documents")
+    with st.spinner("Getting documents"):
+        docs = get_documents(st.session_state["selected_collection"]).objects
+    for doc in docs:
+        with st.container():
+            subcol1, subcol2 = st.columns(2, gap="large")
+            with subcol1:
+                st.text(doc.properties.get("doc_name"))
+            with subcol2:
+                st.button(label="🗑️", key=doc.uuid, on_click=delete_document, kwargs={"uuid": doc.uuid})
 
 with col2:
     with st.form("adding_data", clear_on_submit=True):
