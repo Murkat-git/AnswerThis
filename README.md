@@ -22,3 +22,9 @@ After that, you can access different elements
 - Server on `localhost:8000`
 - Admin Panel on `localhost:8501`
 - User Interface on `localhost:8500`
+
+## For devs
+You can enable dev conda environment using:
+```
+$ conda env create -n answerthis-dev -f dev.environment.yml
+```
