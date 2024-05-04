@@ -63,7 +63,7 @@ Question: {question}
 """
 prompt = ChatPromptTemplate.from_template(template)
 
-llm = Ollama(model="llama2", base_url="http://ollama:11434", temperature=0.4)
+llm = Ollama(model="llama3", base_url="http://ollama:11434", temperature=0.4, keep_alive=-1)
 
 
 chain = retriever | prompt | llm | StrOutputParser()
